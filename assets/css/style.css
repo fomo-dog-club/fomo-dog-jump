@@ -1,6 +1,8 @@
 html, body {
   margin: 0;
   padding: 0;
+  height: 100%;
+  width: 100%;
   background-color: rgb(40,21,51);
 }
 
@@ -19,8 +21,14 @@ html, body {
 .container {
   margin: 0 auto;
   position: relative;
-  height: 100vh;
-  width: 100vw;
+  height: 100%;
+  width: 100%;
+  background-image: url("../img/bg/bg2.jpg");
+  background-repeat: no-repeat;
+  /* background-size: auto; */
+  background-size: contain;
+  /* background-size: cover; */
+  background-position: center;
   /* border: 3px solid red; */
 }
 
@@ -32,12 +40,17 @@ html, body {
   width: 64vw;
 }
 
+/* .canvas-container {
+  position: relative;
+} */
+
 #sprite {
   margin: 0 auto;
   position: absolute;
   top: 52.5%;
   left: 26%;
   transform: translate(-50%, -50%);
+  width: 6vw;
   /* border: 3px solid green; */
 }
 
@@ -47,6 +60,7 @@ html, body {
   top: 56.4%;
   left: 49%;
   transform: translate(-50%, -50%);
+  width: 10vw;
   /* border: 3px solid green; */
 }
 
@@ -56,6 +70,7 @@ html, body {
   top: 47%;
   left: 62%;
   transform: translate(-50%, -50%);
+  width: 8vw;
   /* border: 3px solid green; */
 }
 
