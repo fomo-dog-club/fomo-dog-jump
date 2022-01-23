@@ -157,7 +157,8 @@ function draw() {
     obstaclesGroup.setLifetimeEach(-1);
     obstaclesGroup.setVelocityXEach(0);
 
-    if (keyDown("space") || mousePressedOver(restart)) {
+    // if (keyDown("space") || mousePressedOver(restart)) {
+    if (mousePressedOver(restart)) {
       reset();
     }
   }
