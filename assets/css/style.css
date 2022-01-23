@@ -1,9 +1,10 @@
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   height: 100%;
   width: 100%;
-  background-color: rgb(40,21,51);
+  background-color: rgb(40, 21, 51);
 }
 
 * {
@@ -13,10 +14,11 @@ html, body {
 #canvas-container {
   margin: 0 auto;
   position: relative;
-  width: 1280px;  
+  width: 1280px;
   /* border: 1px solid white; */
 }
-
+/*
 .p5Canvas {
-  /* border: 1px solid white; */
+  border: 1px solid white;
 }
+*/
