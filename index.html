@@ -1,45 +1,33 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
-  <head>
-    <!-- meta info -->
-    <meta name="author" content="">
-    <meta name="description" content="">
-    <meta name="keywords" contnet="">
-    <meta charset="UTF-8">
-    <!-- <meta http-equiv="X-UA-Compatible" content="IE=edge"> -->
-    <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
-    <link rel="manifest" href="assets/favicon/site.webmanifest">
 
-    <!-- title -->
-    <title>Fomo Dog Jump ::: Alpha</title>
+<head>
+  <!-- meta info -->
+  <meta name="author" content="">
+  <meta name="description" content="">
+  <meta name="keywords" contnet="">
+  <meta charset="UTF-8">
+  <!-- <meta http-equiv="X-UA-Compatible" content="IE=edge"> -->
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
+  <link rel="manifest" href="assets/favicon/site.webmanifest">
 
-    <script src="assets/js/p5.js"></script>
-    <!-- <script src="assets/js/p5.sound.min.js"></script> -->
-    <link rel="stylesheet" type="text/css" href="assets/css/style.css">
-  </head>
+  <!-- title -->
+  <title>Fomo Dog Jump ::: Beta</title>
 
-  <body>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.4.0/lib/p5.js"></script>
+  <script src="https://rawgit.com/molleindustria/p5.play/master/lib/p5.play.js"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/p5@1.4.0/lib/addons/p5.sound.js"></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.4.0/lib/addons/p5.sound.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="assets/css/style.css">
 
-    <div class="container">
-      <!-- use cover photo to check placement and size -->
-      <!-- <img id="bg" class="center" src="assets/img/cover.jpeg"> -->
+</head>
 
-      <img id="canvas" class="center" src="assets/img/canvas.png">
-      <div class="canvas-container">
-        <img id="sprite" src="assets/img/sprite/cropped_slow.gif">
-        <img id="met1" src="assets/img/obstacles/meteorite.gif">
-        <img id="alien1" src="assets/img/obstacles/aliendog2.gif">
-      </div>
-    </div>
-
-    <!-- New browser restriction, can't autoplay music -->
-    <audio controls autoplay loop id="music">
-    <!-- <audio controls autoplay muted loop hidden id="music"> -->
-      <source src="assets/music/fdc_theme.mp3" type="audio/mpeg">
-    </audio>
-
-  </body>
+<body>
+  <div id="canvas-container">
+  </div>
+  <script src="assets/js/sketch.js"></script>
+</body>
 
 </html>
