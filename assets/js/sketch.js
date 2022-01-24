@@ -15,9 +15,9 @@ function preload(){
   
   jumpSound = loadSound("assets/music/mario_jump.mp3")
   dieSound = loadSound("assets/music/mario_die.mp3")  
-  checkPointSound = loadSound("assets/music/checkPoint.mp3")
+  checkPointSound = loadSound("assets/music/check_Point.mp3")
   bgSound = loadSound("assets/music/fdc_theme.mp3")
-  playGameSound = loadSound("assets/music/do-you-wanna-play-a-game.mp3")
+  playGameSound = loadSound("assets/music/do_you_wanna_play_a_game.mp3")
   doge_running=loadImage("assets/img/sprite/cropped_fast.gif");
   doge_collided=loadImage("assets/img/sprite/better_luck.gif");
   dogeImage=loadImage("assets/img/sprite/cropped_slow.gif");
