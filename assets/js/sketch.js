@@ -26,24 +26,26 @@ const SPAWN_RATES = {
 };
 
 const SCALES = {
+  LOGO: 0.8,
+  START_BUTTON: 0.35,
   PLAYER: 0.2,
   PET: 0.2,
   OBSTACLE: 0.25,
-  LOGO: 0.8,
-  START_BUTTON: 0.5,
   RESTART_BUTTON: 0.3,
   RESTART_LOGO: 0.7
 };
 
 const POSITIONS = {
   GROUND_Y: 550,
+  LOGO_Y: 80,
+  SCORE_X: null,   // Set in setup as width - 130
+  SCORE_Y: 90,
+  START_BUTTON_Y: 320,
   PLAYER_X: null,  // Set in setup as width / 3
   PET_X: null,     // Set in setup as width / 5
-  LOGO_Y: 70,
-  START_BUTTON_Y: 350,
-  RESTART_BUTTON_Y: 400,
-  RESTART_LOGO_Y: 200,
-  PET_OFFSET_Y: -110
+  PET_OFFSET_Y: -110,
+  RESTART_BUTTON_Y: 440,
+  RESTART_LOGO_Y: 240
 };
 
 const COLLIDERS = {
@@ -190,6 +192,7 @@ function setup() {
   // Set dynamic positions
   POSITIONS.PLAYER_X = width / 3;
   POSITIONS.PET_X = width / 5;
+  POSITIONS.SCORE_X = width - 130;
 
   initializeSprites();
 
@@ -302,6 +305,7 @@ function draw() {
 
   drawSprites();
   drawUI();
+  updateCursor();
 }
 
 // ============================================
@@ -573,7 +577,7 @@ function createObstacle() {
 function drawUI() {
   fill("white");
   textSize(20);
-  text("Score: " + score, width - 130, 100);
+  text("Score: " + score, POSITIONS.SCORE_X, POSITIONS.SCORE_Y);
 
   // Draw secondary colliders for debugging
   if (DEBUG_MODE && gameState === GAME_STATE.PLAY) {
@@ -608,4 +612,53 @@ function drawUfoColliders() {
   }
 
   noStroke();
+}
+
+function updateCursor() {
+  // Change cursor to pointer when hovering over clickable elements
+  let isOverClickable = false;
+
+  if (gameState === GAME_STATE.INIT && startButton.visible) {
+    // Check if mouse is within the button's bounds
+    const buttonWidth = startButton.width * SCALES.START_BUTTON;
+    const buttonHeight = startButton.height * SCALES.START_BUTTON;
+
+    if (mouseX > startButton.position.x - buttonWidth / 2 &&
+      mouseX < startButton.position.x + buttonWidth / 2 &&
+      mouseY > startButton.position.y - buttonHeight / 2 &&
+      mouseY < startButton.position.y + buttonHeight / 2) {
+      isOverClickable = true;
+    }
+  }
+
+  if (gameState === GAME_STATE.END) {
+    // Check restart button
+    if (restartButton.visible) {
+      const buttonWidth = restartButton.width * SCALES.RESTART_BUTTON;
+      const buttonHeight = restartButton.height * SCALES.RESTART_BUTTON;
+
+      if (mouseX > restartButton.position.x - buttonWidth / 2 &&
+        mouseX < restartButton.position.x + buttonWidth / 2 &&
+        mouseY > restartButton.position.y - buttonHeight / 2 &&
+        mouseY < restartButton.position.y + buttonHeight / 2) {
+        isOverClickable = true;
+      }
+    }
+
+    // Check restart logo
+    if (restartLogo.visible) {
+      const logoWidth = restartLogo.width * SCALES.RESTART_LOGO;
+      const logoHeight = restartLogo.height * SCALES.RESTART_LOGO;
+
+      if (mouseX > restartLogo.position.x - logoWidth / 2 &&
+        mouseX < restartLogo.position.x + logoWidth / 2 &&
+        mouseY > restartLogo.position.y - logoHeight / 2 &&
+        mouseY < restartLogo.position.y + logoHeight / 2) {
+        isOverClickable = true;
+      }
+    }
+  }
+
+  // Set cursor style
+  cursor(isOverClickable ? HAND : ARROW);
 }
