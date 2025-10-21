@@ -27,12 +27,12 @@ const SPAWN_RATES = {
 
 const SCALES = {
   LOGO: 0.8,
-  START_BUTTON: 0.35,
+  START_BUTTON: 0.2,
   PLAYER: 0.2,
   PET: 0.2,
   OBSTACLE: 0.25,
-  RESTART_BUTTON: 0.3,
-  RESTART_LOGO: 0.7
+  TRY_AGAIN_BUTTON: 0.25,
+  RESTART_SPRITE: 0.28
 };
 
 const POSITIONS = {
@@ -44,8 +44,8 @@ const POSITIONS = {
   PLAYER_X: null,  // Set in setup as width / 3
   PET_X: null,     // Set in setup as width / 5
   PET_OFFSET_Y: -160,
-  RESTART_BUTTON_Y: 440,
-  RESTART_LOGO_Y: 240
+  TRY_AGAIN_BUTTON_Y: 220,
+  RESTART_SPRITE_Y: 415
 };
 
 const COLLIDERS = {
@@ -107,8 +107,8 @@ let ground;
 let invisibleGround;
 let logo;
 let startButton;
-let restartButton;
-let restartLogo;
+let restartSprite;
+let tryAgainButton;
 let obstaclesGroup;
 
 // ============================================
@@ -131,8 +131,8 @@ let obstacleImages = {
 
 let uiImages = {
   startButton: null,
-  restartButton: null,
-  restartLogo: null,
+  restartSprite: null,
+  tryAgainButton: null,
   logo: null
 };
 
@@ -176,8 +176,8 @@ function preload() {
 
   // Load UI images
   uiImages.startButton = loadImage("assets/img/start.gif");
-  uiImages.restartButton = loadImage("assets/img/sprite/play.gif");
-  uiImages.restartLogo = loadImage("assets/img/restartLogo.gif");
+  uiImages.restartSprite = loadImage("assets/img/sprite/play.gif");
+  uiImages.tryAgainButton = loadImage("assets/img/restartLogo.gif");
   uiImages.logo = loadImage("assets/img/bg/bg_banner.png");
 
   // Load background images
@@ -275,16 +275,16 @@ function initializeUI() {
   startButton.scale = SCALES.START_BUTTON;
   startButton.visible = false;
 
-  restartButton = createSprite(width / 2, POSITIONS.RESTART_BUTTON_Y);
-  restartButton.addImage(uiImages.restartButton);
-  restartButton.scale = SCALES.RESTART_BUTTON;
-  restartButton.visible = false;
-  restartButton.debug = DEBUG_MODE;
+  restartSprite = createSprite(width / 2, POSITIONS.RESTART_SPRITE_Y);
+  restartSprite.addImage(uiImages.restartSprite);
+  restartSprite.scale = SCALES.RESTART_SPRITE;
+  restartSprite.visible = false;
+  restartSprite.debug = DEBUG_MODE;
 
-  restartLogo = createSprite(width / 2, POSITIONS.RESTART_LOGO_Y);
-  restartLogo.addImage(uiImages.restartLogo);
-  restartLogo.scale = SCALES.RESTART_LOGO;
-  restartLogo.visible = false;
+  tryAgainButton = createSprite(width / 2, POSITIONS.TRY_AGAIN_BUTTON_Y);
+  tryAgainButton.addImage(uiImages.tryAgainButton);
+  tryAgainButton.scale = SCALES.TRY_AGAIN_BUTTON;
+  tryAgainButton.visible = false;
 }
 
 // ============================================
@@ -362,7 +362,7 @@ function handleEndState() {
 
   stopObstacles();
 
-  if (mousePressedOver(restartButton) || mousePressedOver(restartLogo)) {
+  if (mousePressedOver(restartSprite) || mousePressedOver(tryAgainButton)) {
     resetGame();
   }
 }
@@ -398,8 +398,8 @@ function updateAudio() {
 
 function hideMenuUI() {
   startButton.visible = false;
-  restartButton.visible = false;
-  restartLogo.visible = false;
+  restartSprite.visible = false;
+  tryAgainButton.visible = false;
 }
 
 function updateScore() {
@@ -507,8 +507,8 @@ function showRestartUI() {
   if (!sounds.playGame.isPlaying()) {
     sounds.playGame.play();
   }
-  restartButton.visible = true;
-  restartLogo.visible = true;
+  restartSprite.visible = true;
+  tryAgainButton.visible = true;
   player.visible = false;
   pet.visible = false;
 }
@@ -521,8 +521,8 @@ function stopObstacles() {
 
 function resetGame() {
   gameState = GAME_STATE.PLAY;
-  restartButton.visible = false;
-  restartLogo.visible = false;
+  restartSprite.visible = false;
+  tryAgainButton.visible = false;
   player.changeAnimation("running", playerImages.running);
   obstaclesGroup.destroyEach();
   score = 0;
@@ -633,7 +633,7 @@ function drawJumpInstructions() {
     fill(255, 255, 255, alpha);
     textSize(20);
     textAlign(CENTER, CENTER);
-    text("(press SPACE to jump)", width / 2, height / 2);
+    text("(press SPACE to jump)", width / 2, height / 2 + 25);
     textAlign(LEFT, BASELINE);
   }
 }
@@ -685,28 +685,28 @@ function updateCursor() {
   }
 
   if (gameState === GAME_STATE.END) {
-    // Check restart button
-    if (restartButton.visible) {
-      const buttonWidth = restartButton.width * SCALES.RESTART_BUTTON;
-      const buttonHeight = restartButton.height * SCALES.RESTART_BUTTON;
+    // Check restart sprite
+    if (restartSprite.visible) {
+      const buttonWidth = restartSprite.width * SCALES.RESTART_SPRITE;
+      const buttonHeight = restartSprite.height * SCALES.RESTART_SPRITE;
 
-      if (mouseX > restartButton.position.x - buttonWidth / 2 &&
-        mouseX < restartButton.position.x + buttonWidth / 2 &&
-        mouseY > restartButton.position.y - buttonHeight / 2 &&
-        mouseY < restartButton.position.y + buttonHeight / 2) {
+      if (mouseX > restartSprite.position.x - buttonWidth / 2 &&
+        mouseX < restartSprite.position.x + buttonWidth / 2 &&
+        mouseY > restartSprite.position.y - buttonHeight / 2 &&
+        mouseY < restartSprite.position.y + buttonHeight / 2) {
         isOverClickable = true;
       }
     }
 
-    // Check restart logo
-    if (restartLogo.visible) {
-      const logoWidth = restartLogo.width * SCALES.RESTART_LOGO;
-      const logoHeight = restartLogo.height * SCALES.RESTART_LOGO;
+    // Check try again button
+    if (tryAgainButton.visible) {
+      const logoWidth = tryAgainButton.width * SCALES.TRY_AGAIN_BUTTON;
+      const logoHeight = tryAgainButton.height * SCALES.TRY_AGAIN_BUTTON;
 
-      if (mouseX > restartLogo.position.x - logoWidth / 2 &&
-        mouseX < restartLogo.position.x + logoWidth / 2 &&
-        mouseY > restartLogo.position.y - logoHeight / 2 &&
-        mouseY < restartLogo.position.y + logoHeight / 2) {
+      if (mouseX > tryAgainButton.position.x - logoWidth / 2 &&
+        mouseX < tryAgainButton.position.x + logoWidth / 2 &&
+        mouseY > tryAgainButton.position.y - logoHeight / 2 &&
+        mouseY < tryAgainButton.position.y + logoHeight / 2) {
         isOverClickable = true;
       }
     }
