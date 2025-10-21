@@ -393,8 +393,21 @@ function updateScore() {
 }
 
 function handlePetBehavior() {
-  if (obstaclesGroup.isTouching(pet)) {
-    pet.velocityY = PHYSICS.JUMP_VELOCITY;
+  // Smooth horizontal following - pet tries to stay behind player
+  const targetX = player.position.x - 150; // Stay 150px behind player
+  const dx = targetX - pet.position.x;
+  pet.position.x += dx * 0.08; // Move 8% of distance per frame (smooth following)
+
+  // Jump slightly before collision - check distance to obstacles
+  for (let i = 0; i < obstaclesGroup.length; i++) {
+    const obstacle = obstaclesGroup[i];
+    const distance = obstacle.position.x - pet.position.x;
+
+    // Jump when obstacle is 80px away and pet is on the ground
+    if (distance > 0 && distance < 80 && pet.position.y >= POSITIONS.GROUND_Y) {
+      pet.velocityY = PHYSICS.JUMP_VELOCITY;
+      break; // Only jump once per frame
+    }
   }
 }
 
