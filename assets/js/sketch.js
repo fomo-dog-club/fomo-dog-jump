@@ -43,7 +43,7 @@ const POSITIONS = {
   START_BUTTON_Y: 320,
   PLAYER_X: null,  // Set in setup as width / 3
   PET_X: null,     // Set in setup as width / 5
-  PET_OFFSET_Y: -110,
+  PET_OFFSET_Y: -160,
   RESTART_BUTTON_Y: 440,
   RESTART_LOGO_Y: 240
 };
@@ -191,8 +191,8 @@ function setup() {
   canvas.parent("canvas-container");
 
   // Set dynamic positions
-  POSITIONS.PLAYER_X = width / 3;
-  POSITIONS.PET_X = width / 5;
+  POSITIONS.PLAYER_X = width / 4.5;
+  POSITIONS.PET_X = width / 10;
   POSITIONS.SCORE_X = width - 130;
 
   initializeSprites();
@@ -341,9 +341,20 @@ function handleEndState() {
   player.velocityY = 0;
   player.changeImage("idle", playerImages.idle);
 
-  // Position pet above player
+  // Position pet relative to player
   pet.position.x = player.position.x;
-  pet.position.y = player.position.y + POSITIONS.PET_OFFSET_Y;
+
+  // Check if pet would obstruct the logo (logo is around Y: 80-150)
+  const petAboveY = player.position.y + POSITIONS.PET_OFFSET_Y;
+  const wouldObstructLogo = petAboveY < 180; // If pet would be too high up
+
+  if (wouldObstructLogo) {
+    // Show pet below player instead
+    pet.position.y = player.position.y - POSITIONS.PET_OFFSET_Y;
+  } else {
+    // Show pet above player (normal)
+    pet.position.y = petAboveY;
+  }
 
   player.changeImage("collided", playerImages.collided);
 
