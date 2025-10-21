@@ -27,7 +27,7 @@ const SPAWN_RATES = {
 
 const SCALES = {
   PLAYER: 0.2,
-  UFO: 0.2,
+  PET: 0.2,
   OBSTACLE: 0.25,
   LOGO: 0.8,
   START_BUTTON: 0.5,
@@ -38,15 +38,54 @@ const SCALES = {
 const POSITIONS = {
   GROUND_Y: 550,
   PLAYER_X: null,  // Set in setup as width / 3
-  UFO_X: null,     // Set in setup as width / 5
+  PET_X: null,     // Set in setup as width / 5
   LOGO_Y: 70,
   START_BUTTON_Y: 350,
   RESTART_BUTTON_Y: 400,
   RESTART_LOGO_Y: 200,
-  UFO_OFFSET_Y: -110
+  PET_OFFSET_Y: -110
 };
 
-const DEBUG_MODE = true;
+const COLLIDERS = {
+  PLAYER: {
+    type: "circle",
+    offsetX: 0,
+    offsetY: 0,
+    radius: 250  // Tighter circular collider for the player body
+  },
+  PET: {
+    type: "rectangle",
+    offsetX: 60,
+    offsetY: 100,
+    width: 400,
+    height: 420
+  },
+  METEORITE: {
+    type: "circle",
+    offsetX: -90,  // Shift center LEFT to match the rock core position
+    offsetY: 0,
+    radius: 140  // 50% of original - matches just the rock core, not fire trail
+  },
+  UFO_ALIEN_DOG: {
+    alienDog: {
+      type: "circle",
+      offsetX: 0,
+      offsetY: 0,
+      radius: 175  // Matches the alien dog body
+    },
+    ufo: {
+      type: "rectangle",
+      offsetX: 0,
+      offsetY: -40,  // Shift up to cover UFO top part
+      width: 620,    // Wide enough to cover UFO horizontal span
+      height: 80     // Tall enough to cover UFO vertical span
+    }
+  }
+};
+
+const DEBUG_MODE = false;
+const DEBUG_COLOR = [0, 255, 255]; // Cyan color for all debug borders
+const DEBUG_STROKE_WEIGHT = 3;     // Thickness for all debug borders
 
 // ============================================
 // GAME STATE VARIABLES
@@ -59,7 +98,7 @@ let isRestartDelayActive = false;
 // SPRITE REFERENCES
 // ============================================
 let player;
-let ufo;
+let pet;
 let ground;
 let invisibleGround;
 let logo;
@@ -77,13 +116,13 @@ let playerImages = {
   idle: null
 };
 
-let ufoImages = {
+let petImages = {
   running: null
 };
 
 let obstacleImages = {
   meteorite: null,
-  alienDog: null
+  ufoAlienDog: null
 };
 
 let uiImages = {
@@ -124,12 +163,12 @@ function preload() {
   playerImages.collided = loadImage("assets/img/sprite/better_luck.gif");
   playerImages.idle = loadImage("assets/img/sprite/cropped_slow.gif");
 
-  // Load UFO sprites
-  ufoImages.running = loadImage("assets/img/fomo_bark.gif");
+  // Load pet sprites
+  petImages.running = loadImage("assets/img/fomo_bark.gif");
 
   // Load obstacle sprites
   obstacleImages.meteorite = loadImage("assets/img/obstacles/meteorite.gif");
-  obstacleImages.alienDog = loadImage("assets/img/obstacles/aliendog2.gif");
+  obstacleImages.ufoAlienDog = loadImage("assets/img/obstacles/aliendog2.gif");
 
   // Load UI images
   uiImages.startButton = loadImage("assets/img/start.gif");
@@ -150,7 +189,7 @@ function setup() {
 
   // Set dynamic positions
   POSITIONS.PLAYER_X = width / 3;
-  POSITIONS.UFO_X = width / 5;
+  POSITIONS.PET_X = width / 5;
 
   initializeSprites();
 
@@ -165,7 +204,7 @@ function initializeSprites() {
   initializeGround();
   initializeLogo();
   initializePlayer();
-  initializeUFO();
+  initializePet();
   initializeUI();
 }
 
@@ -193,22 +232,36 @@ function initializePlayer() {
   player.addImage("collided", playerImages.collided);
   player.addImage("idle", playerImages.idle);
   player.scale = SCALES.PLAYER;
-  player.setCollider("rectangle", 0, 0, player.width, player.height);
+
+  // Use circular collider that matches the player body better
+  player.setCollider(
+    COLLIDERS.PLAYER.type,
+    COLLIDERS.PLAYER.offsetX,
+    COLLIDERS.PLAYER.offsetY,
+    COLLIDERS.PLAYER.radius
+  );
+
   player.visible = false;
 
-  if (DEBUG_MODE) {
-    player.debug = true;
-    player.debugColor = color(255, 0, 0);
-    player.debugStrokeWeight = 3;
-  }
+  player.debug = DEBUG_MODE;
 }
 
-function initializeUFO() {
-  ufo = createSprite(POSITIONS.UFO_X, height / 2, 30, 30);
-  ufo.addImage("running", ufoImages.running);
-  ufo.scale = SCALES.UFO;
-  ufo.visible = false;
-  ufo.debug = DEBUG_MODE;
+function initializePet() {
+  pet = createSprite(POSITIONS.PET_X, height / 2, 30, 30);
+  pet.addImage("running", petImages.running);
+  pet.scale = SCALES.PET;
+
+  // Set collider for the pet
+  pet.setCollider(
+    COLLIDERS.PET.type,
+    COLLIDERS.PET.offsetX,
+    COLLIDERS.PET.offsetY,
+    COLLIDERS.PET.width,
+    COLLIDERS.PET.height
+  );
+
+  pet.visible = false;
+  pet.debug = DEBUG_MODE;
 }
 
 function initializeUI() {
@@ -269,7 +322,7 @@ function handlePlayState() {
   hideMenuUI();
   updateScore();
   spawnObstacles();
-  handleUFOBehavior();
+  handlePetBehavior();
   checkCollisions();
   handlePlayerInput();
 }
@@ -283,9 +336,9 @@ function handleEndState() {
   player.velocityY = 0;
   player.changeImage("idle", playerImages.idle);
 
-  // Position UFO above player
-  ufo.position.x = player.position.x;
-  ufo.position.y = player.position.y + POSITIONS.UFO_OFFSET_Y;
+  // Position pet above player
+  pet.position.x = player.position.x;
+  pet.position.y = player.position.y + POSITIONS.PET_OFFSET_Y;
 
   player.changeImage("collided", playerImages.collided);
 
@@ -304,9 +357,9 @@ function updatePhysics() {
   player.collide(invisibleGround);
   player.visible = true;
 
-  ufo.velocityY += PHYSICS.GRAVITY;
-  ufo.collide(invisibleGround);
-  ufo.visible = true;
+  pet.velocityY += PHYSICS.GRAVITY;
+  pet.collide(invisibleGround);
+  pet.visible = true;
 }
 
 function updateGround() {
@@ -339,16 +392,62 @@ function updateScore() {
   }
 }
 
-function handleUFOBehavior() {
-  if (obstaclesGroup.isTouching(ufo)) {
-    ufo.velocityY = PHYSICS.JUMP_VELOCITY;
+function handlePetBehavior() {
+  if (obstaclesGroup.isTouching(pet)) {
+    pet.velocityY = PHYSICS.JUMP_VELOCITY;
   }
 }
 
 function checkCollisions() {
+  // Check standard collision first
   if (player.isTouching(obstaclesGroup)) {
     triggerGameOver();
+    return;
   }
+
+  // Check UFO collider for UFO alien dog obstacles
+  for (let i = 0; i < obstaclesGroup.length; i++) {
+    const obstacle = obstaclesGroup[i];
+
+    // Only check UFO collider for UFO alien dogs
+    if (obstacle.ufoCollider) {
+      if (checkUfoCollision(player, obstacle)) {
+        triggerGameOver();
+        return;
+      }
+    }
+  }
+}
+
+function checkUfoCollision(player, obstacle) {
+  const config = obstacle.ufoCollider;
+
+  // Calculate the secondary collider's bounds (rectangle)
+  const obstacleScale = obstacle.scale;
+  const rectWidth = config.width * obstacleScale;
+  const rectHeight = config.height * obstacleScale;
+  const rectOffsetX = config.offsetX * obstacleScale;
+  const rectOffsetY = config.offsetY * obstacleScale;
+
+  const rectLeft = obstacle.position.x + rectOffsetX - rectWidth / 2;
+  const rectRight = obstacle.position.x + rectOffsetX + rectWidth / 2;
+  const rectTop = obstacle.position.y + rectOffsetY - rectHeight / 2;
+  const rectBottom = obstacle.position.y + rectOffsetY + rectHeight / 2;
+
+  // Calculate player's circular collider bounds
+  const playerRadius = COLLIDERS.PLAYER.radius * player.scale;
+  const playerLeft = player.position.x - playerRadius;
+  const playerRight = player.position.x + playerRadius;
+  const playerTop = player.position.y - playerRadius;
+  const playerBottom = player.position.y + playerRadius;
+
+  // Check for AABB (Axis-Aligned Bounding Box) collision
+  const colliding = !(playerRight < rectLeft ||
+    playerLeft > rectRight ||
+    playerBottom < rectTop ||
+    playerTop > rectBottom);
+
+  return colliding;
 }
 
 function handlePlayerInput() {
@@ -375,7 +474,7 @@ function showRestartUI() {
   restartButton.visible = true;
   restartLogo.visible = true;
   player.visible = false;
-  ufo.visible = false;
+  pet.visible = false;
 }
 
 function stopObstacles() {
@@ -392,9 +491,9 @@ function resetGame() {
   obstaclesGroup.destroyEach();
   score = 0;
   player.visible = true;
-  ufo.position.x = POSITIONS.UFO_X;
-  ufo.position.y = player.position.y;
-  ufo.visible = true;
+  pet.position.x = POSITIONS.PET_X;
+  pet.position.y = player.position.y;
+  pet.visible = true;
   isRestartDelayActive = false;
 }
 
@@ -419,28 +518,81 @@ function createObstacle() {
   obstacle.velocityX = PHYSICS.OBSTACLE_SPEED;
   obstacle.scale = SCALES.OBSTACLE;
 
-  // Randomly select obstacle type
-  const obstacleTypes = [obstacleImages.meteorite, obstacleImages.alienDog];
-  const selectedObstacle = random(obstacleTypes);
-  obstacle.addImage(selectedObstacle);
+  // Randomly select obstacle type and store it for collision detection
+  const isMeteor = random() > 0.5;
+  const selectedImage = isMeteor ? obstacleImages.meteorite : obstacleImages.ufoAlienDog;
+  obstacle.addImage(selectedImage);
 
-  // Set collider
-  obstacle.setCollider("circle", 0, 0, 300);
+  // Store obstacle type for reference
+  obstacle.obstacleType = isMeteor ? "meteorite" : "ufoAlienDog";
 
-  if (DEBUG_MODE) {
-    obstacle.debug = true;
-    obstacle.debugColor = color(255, 255, 0);
-    obstacle.debugStrokeWeight = 4;
+  // Set primary collider based on obstacle type
+  if (isMeteor) {
+    // Meteorite: shifted left to match the rock core position
+    const config = COLLIDERS.METEORITE;
+    obstacle.setCollider(
+      config.type,
+      config.offsetX,  // Negative value shifts LEFT
+      config.offsetY,
+      config.radius
+    );
+  } else {
+    // UFO Alien Dog: circular collider for the alien dog body
+    const config = COLLIDERS.UFO_ALIEN_DOG.alienDog;
+    obstacle.setCollider(
+      config.type,
+      config.offsetX,
+      config.offsetY,
+      config.radius
+    );
+
+    // Store UFO collider info for manual collision checking
+    obstacle.ufoCollider = COLLIDERS.UFO_ALIEN_DOG.ufo;
   }
+
+  obstacle.debug = DEBUG_MODE;
 
   obstaclesGroup.add(obstacle);
 }
-
 // ============================================
 // UI RENDERING
 // ============================================
 function drawUI() {
   fill("white");
   textSize(20);
-  text("分數: " + score, width - 130, 100);
+  text("Score: " + score, width - 130, 100);
+
+  // Draw secondary colliders for debugging
+  if (DEBUG_MODE && gameState === GAME_STATE.PLAY) {
+    drawUfoColliders();
+  }
+}
+
+function drawUfoColliders() {
+  stroke(...DEBUG_COLOR);
+  strokeWeight(DEBUG_STROKE_WEIGHT);
+  noFill();
+
+  for (let i = 0; i < obstaclesGroup.length; i++) {
+    const obstacle = obstaclesGroup[i];
+
+    if (obstacle.ufoCollider) {
+      const config = obstacle.ufoCollider;
+      const obstacleScale = obstacle.scale;
+
+      const rectWidth = config.width * obstacleScale;
+      const rectHeight = config.height * obstacleScale;
+      const rectOffsetX = config.offsetX * obstacleScale;
+      const rectOffsetY = config.offsetY * obstacleScale;
+
+      const rectX = obstacle.position.x + rectOffsetX;
+      const rectY = obstacle.position.y + rectOffsetY;
+
+      // Draw the secondary rectangular collider
+      rectMode(CENTER);
+      rect(rectX, rectY, rectWidth, rectHeight);
+    }
+  }
+
+  noStroke();
 }
