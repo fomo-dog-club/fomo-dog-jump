@@ -93,6 +93,7 @@ const DEBUG_STROKE_WEIGHT = 3;     // Thickness for all debug borders
 // GAME STATE VARIABLES
 // ============================================
 let gameState = GAME_STATE.INIT;
+let gameStartFrame = 0; // Track when game starts for showing instructions
 let score = 0;
 let isRestartDelayActive = false;
 let petJumpQueue = []; // Queue of frames when pet should jump
@@ -317,6 +318,7 @@ function handleInitState() {
 
   if (keyDown("space") || mousePressedOver(startButton)) {
     gameState = GAME_STATE.PLAY;
+    gameStartFrame = frameCount; // Record when game started
   }
 }
 
@@ -529,6 +531,7 @@ function resetGame() {
   pet.position.y = player.position.y;
   pet.visible = true;
   isRestartDelayActive = false;
+  gameStartFrame = frameCount; // Show instructions again on restart
 }
 
 // ============================================
@@ -596,9 +599,42 @@ function drawUI() {
   textSize(20);
   text("Score: " + score, POSITIONS.SCORE_X, POSITIONS.SCORE_Y);
 
+  // Show instructions briefly after game starts
+  if (gameState === GAME_STATE.PLAY) {
+    drawJumpInstructions();
+  }
+
   // Draw secondary colliders for debugging
   if (DEBUG_MODE && gameState === GAME_STATE.PLAY) {
     drawUfoColliders();
+  }
+}
+
+function drawJumpInstructions() {
+  const framesSinceStart = frameCount - gameStartFrame;
+  const showDuration = 100; // Show for ~1.7 seconds (at 60fps)
+  const fadeInDuration = 30;  // Fade in over 30 frames
+  const fadeOutDuration = 30; // Fade out over 30 frames
+
+  if (framesSinceStart < showDuration) {
+    let alpha = 180;
+
+    // Fade in effect at the beginning
+    if (framesSinceStart < fadeInDuration) {
+      const fadeInProgress = framesSinceStart / fadeInDuration;
+      alpha = 180 * fadeInProgress;
+    }
+    // Fade out effect at the end
+    else if (framesSinceStart > showDuration - fadeOutDuration) {
+      const fadeOutProgress = (framesSinceStart - (showDuration - fadeOutDuration)) / fadeOutDuration;
+      alpha = 180 * (1 - fadeOutProgress);
+    }
+
+    fill(255, 255, 255, alpha);
+    textSize(20);
+    textAlign(CENTER, CENTER);
+    text("(press SPACE to jump)", width / 2, height / 2);
+    textAlign(LEFT, BASELINE);
   }
 }
 
