@@ -95,6 +95,7 @@ const DEBUG_STROKE_WEIGHT = 3;     // Thickness for all debug borders
 let gameState = GAME_STATE.INIT;
 let score = 0;
 let isRestartDelayActive = false;
+let petJumpQueue = []; // Queue of frames when pet should jump
 
 // ============================================
 // SPRITE REFERENCES
@@ -397,21 +398,15 @@ function updateScore() {
 }
 
 function handlePetBehavior() {
-  // Smooth horizontal following - pet tries to stay behind player
-  const targetX = player.position.x - 150; // Stay 150px behind player
-  const dx = targetX - pet.position.x;
-  pet.position.x += dx * 0.08; // Move 8% of distance per frame (smooth following)
+  // Keep pet at fixed X position (to the left of player)
+  pet.position.x = POSITIONS.PET_X;
 
-  // Jump slightly before collision - check distance to obstacles
-  for (let i = 0; i < obstaclesGroup.length; i++) {
-    const obstacle = obstaclesGroup[i];
-    const distance = obstacle.position.x - pet.position.x;
-
-    // Jump when obstacle is 80px away and pet is on the ground
-    if (distance > 0 && distance < 80 && pet.position.y >= POSITIONS.GROUND_Y) {
-      pet.velocityY = PHYSICS.JUMP_VELOCITY;
-      break; // Only jump once per frame
-    }
+  // Check if it's time for pet to jump (based on queued jumps)
+  if (petJumpQueue.length > 0 && frameCount >= petJumpQueue[0]) {
+    // Pet mimics player exactly - can jump mid-air if player did
+    pet.velocityY = PHYSICS.JUMP_VELOCITY;
+    // console.log('🐕 Pet jumping! Frame:', frameCount);
+    petJumpQueue.shift(); // Remove this jump from queue
   }
 }
 
@@ -474,6 +469,17 @@ function handlePlayerInput() {
   if (jumpInput && canJump) {
     player.velocityY = PHYSICS.JUMP_VELOCITY;
     sounds.jump.play();
+
+    // Calculate when pet should jump based on distance offset
+    // Pet is at POSITIONS.PET_X, player is at POSITIONS.PLAYER_X
+    const xOffset = POSITIONS.PLAYER_X - POSITIONS.PET_X; // Distance between them
+    const obstacleSpeed = Math.abs(PHYSICS.OBSTACLE_SPEED); // How fast obstacles move (6 px/frame)
+    const framesDelay = Math.round(xOffset / obstacleSpeed); // How many frames until obstacle reaches pet
+
+    const petJumpFrame = frameCount + framesDelay;
+    petJumpQueue.push(petJumpFrame);
+
+    // console.log('👤 Player jumped! Pet will jump in', framesDelay, 'frames at frame', petJumpFrame);
   }
 }
 
