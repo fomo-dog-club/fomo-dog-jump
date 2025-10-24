@@ -477,7 +477,7 @@ function checkUfoCollision(player, obstacle) {
 
 function handlePlayerInput() {
   const canJump = player.position.y >= 200;
-  const jumpInput = keyDown("space") || mousePressedOver(player);
+  const jumpInput = keyDown("space") || mouseIsPressed || touches.length > 0;
 
   if (jumpInput && canJump) {
     player.velocityY = PHYSICS.JUMP_VELOCITY;
@@ -600,9 +600,10 @@ function drawUI() {
   text("Score: " + score, POSITIONS.SCORE_X, POSITIONS.SCORE_Y);
 
   // Show instructions briefly after game starts
-  if (gameState === GAME_STATE.PLAY) {
-    drawJumpInstructions();
-  }
+  // Disabling as we added support for click and tap controls
+  // if (gameState === GAME_STATE.PLAY) {
+  //   drawJumpInstructions();
+  // }
 
   // Draw secondary colliders for debugging
   if (DEBUG_MODE && gameState === GAME_STATE.PLAY) {
@@ -610,6 +611,7 @@ function drawUI() {
   }
 }
 
+// Not in use since adding click/tap controls
 function drawJumpInstructions() {
   const framesSinceStart = frameCount - gameStartFrame;
   const showDuration = 100; // Show for ~1.7 seconds (at 60fps)
