@@ -37,9 +37,9 @@ const SCALES = {
 
 const POSITIONS = {
   GROUND_Y: 550,
-  LOGO_Y: 80,
+  LOGO_Y: 60,
   SCORE_X: null,   // Set in setup as width - 130
-  SCORE_Y: 90,
+  SCORE_Y: 60,
   START_BUTTON_Y: 320,
   PLAYER_X: null,  // Set in setup as width / 3
   PET_X: null,     // Set in setup as width / 5
@@ -178,7 +178,7 @@ function preload() {
   uiImages.startButton = loadImage("assets/img/start.gif");
   uiImages.restartSprite = loadImage("assets/img/sprite/play.gif");
   uiImages.tryAgainButton = loadImage("assets/img/restartLogo.gif");
-  uiImages.logo = loadImage("assets/img/bg/bg_banner.png");
+  uiImages.logo = loadImage("assets/img/bg/bg_banner2.png");
 
   // Load background images
   backgroundImages.ground = loadImage("assets/img/bg/bg_spacex.png");
