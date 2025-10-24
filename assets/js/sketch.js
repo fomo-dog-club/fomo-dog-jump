@@ -316,7 +316,7 @@ function draw() {
 function handleInitState() {
   startButton.visible = true;
 
-  if (keyDown("space") || mousePressedOver(startButton)) {
+  if (keyDown("space") || mousePressedOver(startButton) || isTouchingSprite(startButton)) {
     gameState = GAME_STATE.PLAY;
     gameStartFrame = frameCount; // Record when game started
   }
@@ -362,7 +362,8 @@ function handleEndState() {
 
   stopObstacles();
 
-  if (mousePressedOver(restartSprite) || mousePressedOver(tryAgainButton)) {
+  if (mousePressedOver(restartSprite) || mousePressedOver(tryAgainButton) || 
+      isTouchingSprite(restartSprite) || isTouchingSprite(tryAgainButton)) {
     resetGame();
   }
 }
@@ -716,4 +717,26 @@ function updateCursor() {
 
   // Set cursor style
   cursor(isOverClickable ? HAND : ARROW);
+}
+
+// ============================================
+// TOUCH SUPPORT HELPER
+// ============================================
+function isTouchingSprite(sprite) {
+  if (touches.length === 0) return false;
+  
+  // Check if any touch point is within the sprite bounds
+  for (let i = 0; i < touches.length; i++) {
+    const touch = touches[i];
+    const spriteWidth = sprite.width * sprite.scale;
+    const spriteHeight = sprite.height * sprite.scale;
+    
+    if (touch.x > sprite.position.x - spriteWidth / 2 &&
+        touch.x < sprite.position.x + spriteWidth / 2 &&
+        touch.y > sprite.position.y - spriteHeight / 2 &&
+        touch.y < sprite.position.y + spriteHeight / 2) {
+      return true;
+    }
+  }
+  return false;
 }
